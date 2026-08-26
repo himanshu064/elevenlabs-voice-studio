@@ -1,4 +1,4 @@
-import { AudioLines, Loader2, Sparkles } from "lucide-react";
+import { AudioLines, Loader2, Sparkles, Wand2 } from "lucide-react";
 import type { TtsMetrics } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { AudioPlayer } from "@/components/shared/audio-player";
@@ -16,6 +16,8 @@ export function GeneratePanel({
   error,
   audioUrl,
   metrics,
+  audioTagWarning = false,
+  onSwitchToExpressive,
 }: {
   onGenerate: () => void;
   disabled: boolean;
@@ -23,11 +25,37 @@ export function GeneratePanel({
   error: string | null;
   audioUrl: string | null;
   metrics: TtsMetrics | null;
+  /** Text contains audio tags but a non-expressive model is selected. */
+  audioTagWarning?: boolean;
+  onSwitchToExpressive?: () => void;
 }) {
   const showPlaceholder = !audioUrl && !error;
 
   return (
     <div className="flex flex-col gap-4">
+      {audioTagWarning && (
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2.5 text-xs text-amber-600 dark:text-amber-400">
+          <Wand2 className="size-3.5 shrink-0" />
+          <span className="min-w-0 flex-1">
+            Audio tags like{" "}
+            <code className="font-mono">[laughs]</code> only work on{" "}
+            <span className="font-medium">Eleven v3</span>. The current model
+            will read them literally.
+          </span>
+          {onSwitchToExpressive && (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="h-7 border-amber-500/40 text-amber-600 hover:bg-amber-500/10 dark:text-amber-400"
+              onClick={onSwitchToExpressive}
+            >
+              Switch to v3
+            </Button>
+          )}
+        </div>
+      )}
+
       <Button
         type="button"
         size="lg"

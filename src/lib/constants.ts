@@ -96,3 +96,22 @@ export const OUTPUT_FORMAT = "mp3_44100_128";
 
 /** Hard cap on input length for this demo. */
 export const MAX_TEXT_LENGTH = 5000;
+
+/**
+ * The `eleven_v3` model id used to interpret inline audio tags. Presets and the
+ * audio-tag warning route to this when tags are detected.
+ */
+export const EXPRESSIVE_MODEL_ID = "eleven_v3";
+
+/**
+ * Inline audio tags (e.g. `[laughs]`, `[whispers]`) are an eleven_v3-only
+ * feature. Other models read them literally, so we detect them to warn the user
+ * when a non-expressive model is selected.
+ */
+export const AUDIO_TAG_PATTERN =
+  /\[(laughs?|laughing|whispers?|whispering|excited|sighs?|sarcastic|curious|crying|shouts?|shouting|angry|nervous|happy|sad|pause|gulps?|snorts?|giggles?|chuckles?|exhales?|clears throat|sings?|singing)\b[^\]]*\]/i;
+
+/** True when the text contains an inline audio tag that only v3 understands. */
+export function hasAudioTags(text: string): boolean {
+  return AUDIO_TAG_PATTERN.test(text);
+}
