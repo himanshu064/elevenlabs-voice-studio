@@ -4,6 +4,8 @@ import { useCallback, useMemo, useState } from "react";
 import {
   DEFAULT_MODEL_ID,
   DEFAULT_VOICE_SETTINGS,
+  EXPRESSIVE_MODEL_ID,
+  hasAudioTags,
   MAX_TEXT_LENGTH,
 } from "@/lib/constants";
 import type { Preset, VoiceSettings } from "@/lib/types";
@@ -69,6 +71,18 @@ export function TtsStudio() {
     [models, modelId]
   );
 
+  // Audio tags ([laughs], [whispers], ...) only work on the expressive v3 model.
+  // Warn (and offer a one-click switch) when tags are used with another model.
+  const audioTagWarning = useMemo(
+    () => hasAudioTags(text) && !isExpressiveModel,
+    [text, isExpressiveModel]
+  );
+
+  const switchToExpressive = useCallback(
+    () => setModelId(EXPRESSIVE_MODEL_ID),
+    []
+  );
+
   return (
     <div className="flex flex-col gap-8">
       <ModelSelector
@@ -97,6 +111,8 @@ export function TtsStudio() {
               error={error}
               audioUrl={audioUrl}
               metrics={metrics}
+              audioTagWarning={audioTagWarning}
+              onSwitchToExpressive={switchToExpressive}
             />
           </CardContent>
         </Card>

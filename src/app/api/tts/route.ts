@@ -55,6 +55,13 @@ export async function POST(req: NextRequest) {
   const modelId = body.modelId || DEFAULT_MODEL_ID;
   const settings = { ...DEFAULT_VOICE_SETTINGS, ...body.voiceSettings };
 
+  // Force text normalization so numbers, dates, and currency are spoken
+  // correctly ("1234" -> "twelve thirty-four", "$50" -> "fifty dollars").
+  // On the streaming endpoint the default 'auto' mode often skips this to save
+  // latency, which is why raw digits get mispronounced. v3 doesn't accept 'on'
+  // (only 'auto'/'off'), so fall back to 'auto' for it.
+  const applyTextNormalization = modelId.includes("v3") ? "auto" : "on";
+
   try {
     const client = getElevenLabsClient();
 
@@ -64,6 +71,7 @@ export async function POST(req: NextRequest) {
       text,
       modelId,
       outputFormat: OUTPUT_FORMAT,
+      applyTextNormalization,
       voiceSettings: {
         stability: settings.stability,
         similarityBoost: settings.similarityBoost,
